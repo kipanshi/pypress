@@ -6,7 +6,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import Module, Response, request, flash, jsonify, g, current_app,\
+from flask import Blueprint, Response, request, flash, jsonify, g, current_app,\
     abort, redirect, url_for, session
 
 from flaskext.babel import gettext as _
@@ -18,12 +18,12 @@ from pypress.extensions import db
 from pypress.models import Link
 from pypress.forms import LinkForm
 
-link = Module(__name__)
+link = Blueprint('link', __name__)
 
 @link.route("/")
 @link.route("/page/<int:page>/")
 def index(page=1):
-    
+
     links = Link.query
 
     if g.user is None:
@@ -33,18 +33,18 @@ def index(page=1):
 
     page_url = lambda page: url_for("link.index",page=page)
 
-    return render_template("blog/links.html", 
+    return render_template("blog/links.html",
                             page_obj=page_obj,
                             page_url=page_url)
 
 
 @link.route("/add/", methods=("GET","POST"))
 def add():
-    
+
     form = LinkForm()
 
     if form.validate_on_submit():
-        
+
         link = Link()
         form.populate_obj(link)
 
@@ -88,4 +88,4 @@ def delete(link_id):
     return jsonify(success=True,
                    link_id=link_id)
 
-   
+

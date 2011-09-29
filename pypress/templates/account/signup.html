@@ -1,7 +1,7 @@
 {% extends theme("layout.html") %}
 {% from "macros/_forms.html" import render_errors %}
 
-{%- block content %}
+{% block content %}
 <h2 class="title">{{ _('Sign up to pypress') }}</h2>
 <div id="sign">
     <form method="POST" action=".">
@@ -40,5 +40,4 @@
         </table>
     </form>
 </div>
-{%- endblock %}
-{%- block sidebar %}{%- endblock %}
+{% endblock %}

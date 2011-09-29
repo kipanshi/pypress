@@ -1,10 +1,9 @@
     <div id="archives" class="sidebox">
-        <h3>{{ _("Archive") }}</h3>
+        <h4>{{ _("Archive") }}</h4>
         <div class="inner">
         {% if archives %}
-        <ul>
-        {% for date in archives %}
-            <li><a href="{{ url_for('frontend.index',year=date.year,month=date.month) }}">{{ date|format_date('yyyy\u5e74MMMM') }}</a></li>
+        {% for date in archives[:10] %}
+            <div class="news-item"><a href="{{ url_for('frontend.index',year=date.year,month=date.month) }}">{{ date|format_date('MMMM yyyy') }}</a></div>
         {% endfor %}
         </ul>
         {% endif %}

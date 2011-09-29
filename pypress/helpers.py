@@ -19,9 +19,11 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
+import genshi.builder as bldr
+
 from flask import current_app, g
 from flaskext.babel import gettext, ngettext, format_date, format_datetime
-from flaskext.themes import render_theme_template 
+from flaskext.themes import render_theme_template
 
 from pypress.extensions import cache
 
@@ -48,16 +50,16 @@ class Storage(dict):
             return self[key]
         except KeyError, k:
             raise AttributeError, k
-    
+
     def __setattr__(self, key, value):
         self[key] = value
-    
+
     def __delattr__(self, key):
         try:
             del self[key]
         except KeyError, k:
             raise AttributeError, k
-    
+
     def __repr__(self):
         return '<Storage ' + dict.__repr__(self) + '>'
 
@@ -80,6 +82,20 @@ markdown = functools.partial(markdown.markdown,
                              safe_mode='remove',
                              output_format="html")
 
+def creole_make_img(match, environ):
+    dct = match.groupdict()
+    src = dct['src']
+    if 'width' in dct:
+        width = dct['width']
+        height = dct['height']
+        if 'alt' in dct:
+            alt = dct['alt']
+            return bldr.tag.img(src=src, width=width, height=height, alt=alt, title=alt)
+        else:
+            return bldr.tag.img(src=src, width=width, height=height)
+    return bldr.tag.img(src=src)
+
+
 cached = functools.partial(cache.cached,
                            unless= lambda: g.user is not None)
 
@@ -90,7 +106,7 @@ def render_template(template, **context):
     return render_theme_template(get_theme(), template, **context)
 
 def request_wants_json(request):
-    """ 
+    """
     we only accept json if the quality of json is greater than the
     quality of text/html because text/html is preferred to support
     browsers that accept on */*
@@ -105,7 +121,7 @@ def timesince(dt, default=None):
     Returns string representing "time since" e.g.
     3 days ago, 5 hours ago etc.
     """
-    
+
     if default is None:
         default = gettext("just now")
 
@@ -118,7 +134,7 @@ def timesince(dt, default=None):
     days = diff.days
     hours = diff.seconds / 3600
     minutes = diff.seconds / 60
-    seconds = diff.seconds 
+    seconds = diff.seconds
 
     periods = (
         (years, ngettext("%(num)s year", "%(num)s years", num=years)),
@@ -169,7 +185,7 @@ def endtags(html):
             closed_tags.remove(tag)
         else:
             html += "</%s>" % tag
-     
+
     return html
 
 class Gravatar(object):
@@ -260,7 +276,7 @@ def code_highlight(value):
         return u''.join(s_list)
 
     return value
-    
+
 def code2html(code, lang):
     lexer = get_lexer_by_name(lang, stripall=True)
     formatter = HtmlFormatter()
@@ -271,4 +287,4 @@ def ip2long(ip):
 
 def long2ip(num):
     return socket.inet_ntoa(struct.pack("!I",num))
-    
+

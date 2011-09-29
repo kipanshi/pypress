@@ -7,35 +7,33 @@
     <h2 class="title">{{ _("Add link") }}</h2>
     <div id="add_link">
         <form method="POST" action=".">
+        <fieldset>
             {{ form.hidden_tag() }}
-            <table cellspacing="0" class="form-table">
-            <tbody>
-                <tr>
-                    <th>{{ form.name.label }}</th>
-                    <td>{{ form.name(size=30, class="text") }} {{ render_errors(form.name) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.link.label }}</th>
-                    <td>{{ form.link(size=50, class="text") }} {{ render_errors(form.link) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.email.label }}</th>
-                    <td>{{ form.email(size=50, class="text") }} {{ render_errors(form.email) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.logo.label }}</th>
-                    <td>{{ form.logo(size=50, class="text") }} {{ render_errors(form.logo) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.description.label }}</th>
-                    <td>{{ form.description(class="text", style="width:400px;height:100px;") }} {{ render_errors(form.description) }}</td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <td>{{ form.submit(class="button") }}</td>
-                </tr>
-            </tbody>
-            </table>
+                <p>
+                    {{ form.name.label }}
+                    {{ form.name(size=30, class="text") }} {{ render_errors(form.name) }}
+                </p>
+                <p>
+                    {{ form.link.label }}
+                    {{ form.link(size=50, class="text") }} {{ render_errors(form.link) }}
+                </p>
+                <p>
+                    {{ form.email.label }}
+                    {{ form.email(size=50, class="text") }} {{ render_errors(form.email) }}
+                </p>
+                <p>
+                    {{ form.logo.label }}
+                    {{ form.logo(size=50, class="text") }} {{ render_errors(form.logo) }}
+                </p>
+                <p>
+                    {{ form.description.label }}
+                    {{ form.description(class="text", style="width:400px;height:100px;") }} {{ render_errors(form.description) }}
+                </p>
+                <p>
+
+                    {{ form.submit(class="formbutton") }}
+                </p>
+            </fieldset>
         </form>
     </div>
 </div>

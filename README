@@ -1,4 +1,4 @@
-This is a team blog by flask. 
+This is a team blog by flask.
 Thanks for flask_website and newsmeme at http://flask.pocoo.org/community/poweredby/
 
 1. install
@@ -12,8 +12,14 @@ Flask-Mail
 Flask-Script
 Flask-Babel
 Flask-Themes
+Flask-Uploads
+Flask-Creole
+creole
+oauth2
 markdown
 blinker
+pygments
+recaptcha-client
 
 install example:
 easy_install flask

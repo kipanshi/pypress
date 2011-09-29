@@ -4,12 +4,12 @@
 from flaskext.mail import Mail
 from flaskext.sqlalchemy import SQLAlchemy
 from flaskext.cache import Cache
-from flaskext.uploads import UploadSet, IMAGES
+from flaskext.uploads import UploadSet, AllExcept, EXECUTABLES, SCRIPTS
 
 __all__ = ['mail', 'db', 'cache', 'photos']
 
 mail = Mail()
 db = SQLAlchemy()
 cache = Cache()
-photos = UploadSet('photos', IMAGES)
+uploader = UploadSet('uploads', AllExcept(SCRIPTS + EXECUTABLES))
 

@@ -9,9 +9,11 @@
         <p>We're sorry.</p>
     </blockquote>
     <div class="simple">
-        <p>{{ _("Maybe you can try search:") }}</p>
+        <p>{{ _("Maybe you can try a search:") }}</p>
         <form action="{{ url_for("frontend.search") }}" method="GET">
+            <fieldset>
             <input type="text" class="text" value="{{ request.args.get('q','') }}" id="q" name="q"><input type="submit" class="button" value="{{ _('Search') }}" id="searchsubmit">
+            </fieldset>
         </form>
     </div>
 </div>

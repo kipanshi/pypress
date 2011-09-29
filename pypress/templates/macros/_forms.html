@@ -1,10 +1,10 @@
 {% macro render_errors(field) %}
 {% if field.errors %}
-<ul class="errors">
+<div class="errors">
     {% for error in field.errors %}
-    <li>{{ error }}</li>
+    <span>{{ error }}</span>
     {% endfor %}
-</ul>
+</div>
 {% endif %}
 {% endmacro %}
 

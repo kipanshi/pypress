@@ -10,34 +10,36 @@ import datetime
 import os
 import json
 
-from flask import Module, Response, request, flash, jsonify, g, current_app, \
+from flask import Blueprint, Response, request, flash, jsonify, g, current_app, \
     abort, redirect, url_for, session
 
 from flaskext.mail import Message
 from flaskext.babel import gettext as _
 
+from recaptcha.client import captcha
+
 from pypress import signals
 from pypress.helpers import render_template, cached, ip2long
-from pypress.permissions import auth 
+from pypress.permissions import auth
 from pypress.extensions import db
 
 from pypress.models import User, Post, Comment
 from pypress.forms import PostForm, CommentForm
 
-post = Module(__name__)
+post = Blueprint('post', __name__)
 
 
 @post.route("/", methods=("GET","POST"))
 @auth.require(401)
 def submit():
-    
+
     form = PostForm()
 
     if form.validate_on_submit():
 
         post = Post(author=g.user)
         form.populate_obj(post)
-        
+
         db.session.add(post)
         db.session.commit()
 
@@ -62,20 +64,21 @@ def edit(post_id):
 
     post = Post.query.get_or_404(post_id)
 
-    form = PostForm(title = post.title, 
+    form = PostForm(title = post.title,
                     slug = post.slug,
-                    content = post.content, 
+                    content = post.content,
                     tags = post.tags,
+                    page = post.page,
                     obj = post)
 
     if form.validate_on_submit():
-        
+
         form.populate_obj(post)
 
         db.session.commit()
-        
+
         flash(_("Post has been changed"), "success")
-        
+
         return redirect(post.url)
 
     return render_template("blog/submit.html", form=form)
@@ -89,10 +92,10 @@ def delete(post_id):
     post.permissions.delete.test(403)
 
     Comment.query.filter_by(post=post).delete()
-    
+
     db.session.delete(post)
     db.session.commit()
-    
+
     if g.user.id != post.author_id:
         body = render_template("emails/post_deleted.html",
                                post=post)
@@ -106,7 +109,7 @@ def delete(post_id):
     flash(_("The post has been deleted"), "success")
 
     return jsonify(success=True,
-                   redirect_url=url_for('frontend.index'))
+                   redirect_url=url_for('frontend.start'))
 
 
 @post.route("/<int:post_id>/addcomment/", methods=("GET", "POST"))
@@ -116,11 +119,10 @@ def add_comment(post_id, parent_id=None):
     post = Post.query.get_or_404(post_id)
 
     parent = Comment.query.get_or_404(parent_id) if parent_id else None
-    
+
     form = CommentForm()
 
     if form.validate_on_submit():
-
         comment = Comment(post=post,
                           parent=parent,
                           ip=ip2long(request.environ['REMOTE_ADDR']))
@@ -131,13 +133,13 @@ def add_comment(post_id, parent_id=None):
 
         db.session.add(comment)
         db.session.commit()
-        
+
         signals.comment_added.send(post)
 
         flash(_("Thanks for your comment"), "success")
 
         return redirect(comment.url)
-    
+
     return render_template("blog/add_comment.html",
                            parent=parent,
                            post=post,

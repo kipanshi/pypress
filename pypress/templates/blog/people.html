@@ -6,7 +6,6 @@
 {%- block content %}
 <div class="content">
     <div id="user">
-        <div class="avatar"><img src="{{ people.email|gravatar(size=50) }}" alt="{{ people.nickname }}" /></div>
         <div class="info">
             <h3>{{ people.nickname }}</h3>
             <p>{{ _("Joined in") }}:{{ people.date_joined }}</p>
@@ -42,7 +41,7 @@
             </div>
         {%- endfor %}
         {{ paginate(page_obj, page_url) }}
-    {%- else %}    
+    {%- else %}
         {%- if g.user == people %}
             <p>{{ _("You has not posted anything yet.") }} <a href="{{ url_for('post.submit') }}">{{ _("Submit") }}</a></p>
         {%- else %}
@@ -54,15 +53,6 @@
         {% from "macros/_twitter.html" import tweet_box %}
         {{ tweet_box(people.tweets) }}
     </div>
-</div>
-{%- endblock %}
-{%- block sidebar %}
-<div class="sidebar">
-    {% include "blog/_postnow.html" %}
-    {% include "blog/_search.html" %}
-    {% include "blog/_tags.html" %}
-    {% include "blog/_archive.html" %}
-    {% include "blog/_links.html" %}
 </div>
 {%- endblock %}
 {%- block js %}

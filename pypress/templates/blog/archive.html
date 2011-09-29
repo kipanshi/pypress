@@ -8,19 +8,9 @@
     <div id="archive">
         <ul>
         {%- for date in archives %}
-            <li><a href="{{ url_for('frontend.index',year=date.year,month=date.month) }}">{{ date|format_date('yyyy\u5e74MMMM') }}</a></li>
+            <li><a href="{{ url_for('frontend.index',year=date.year,month=date.month) }}">{{ date|format_date('MMMM yyyy') }}</a></li>
         {%- endfor %}
         </ul>
     </div>
-</div>
-{%- endblock %}
-{%- block sidebar %}
-<div class="sidebar">
-    {% include "blog/_postnow.html" %}
-    {% include "blog/_search.html" %}
-    {% include "blog/_tags.html" %}
-    {% include "blog/_comment.html" %}
-    {% include "blog/_archive.html" %}
-    {% include "blog/_links.html" %}
 </div>
 {%- endblock %}

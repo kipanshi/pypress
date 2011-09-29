@@ -11,36 +11,26 @@
     {%- endif %}
     <div id="add_comment">
     <form method="post" action=".">
+        <fieldset>
         {{ form.hidden_tag() }}
-            <table cellspacing="0" class="form-table">
-            <tbody>
             {%- if g.user %}
                 {{ form.email(type='hidden',value=g.user.email) }}
                 {{ form.nickname(type='hidden',value=g.user.nickname) }}
-            {%- else %}                    
-                <tr>
-                    <th>{{ form.email.label }}</th>
-                    <td>{{ form.email(size=50, class="text") }} {{ render_errors(form.email) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.nickname.label }}</th>
-                    <td>{{ form.nickname(size=50, class="text") }} {{ render_errors(form.nickname) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.website.label }}</th>
-                    <td>{{ form.website(size=50, class="text") }} {{ render_errors(form.website) }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.comment.label }}</th>
-                    <td>{{ form.comment(class="text", style="width:400px;height:100px;") }} {{ render_errors(form.comment) }}</td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <td>{{ form.submit(class="button") }}</td>
-                </tr>
+            {%- else %}
+                <p>{{ form.email.label }}
+                {{ form.email(size=50, class="text") }} {{ render_errors(form.email) }}</p>
+                <p>{{ form.nickname.label }}
+                {{ form.nickname(size=50, class="text") }} {{ render_errors(form.nickname) }}</p>
+                <p>{{ form.website.label }}
+                {{ form.website(size=50, class="text") }} {{ render_errors(form.website) }}</p>
             {%- endif %}
-            </tbody>
-            </table>
+                <p>{{ form.comment.label }}
+                {{ form.comment }} {{ render_errors(form.comment) }}</p>
+            {% if not g.user %}
+                {{ form.recaptcha }}
+            {% endif %}
+                {{ form.submit(class="formbutton") }}
+            </fieldset>
     </form>
     </div>
 </div>

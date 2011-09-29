@@ -7,10 +7,12 @@
 
     :license: BSD, see LICENSE for more details.
 """
-from flaskext.wtf import Form, TextAreaField, SubmitField, TextField, \
-        ValidationError, required, email, url, optional
+from flaskext.wtf import Form, TextAreaField, SubmitField, TextField, BooleanField, \
+        FileField, RecaptchaField, ValidationError, required, email, url, optional
 
-from flaskext.babel import gettext, lazy_gettext as _ 
+from flaskext.babel import gettext, lazy_gettext as _
+
+from recaptcha.client import captcha
 
 from pypress.helpers import slugify
 from pypress.extensions import db
@@ -25,10 +27,11 @@ class PostForm(Form):
 
     content = TextAreaField(_("Content"))
 
-    tags = TextField(_("Tags"), validators=[
-                      required(message=_("Tags required"))])
+    tags = TextField(_("Tags"))
 
     submit = SubmitField(_("Save"))
+
+    page = BooleanField("Page")
 
     def __init__(self, *args, **kwargs):
         self.post = kwargs.get('obj', None)
@@ -51,46 +54,52 @@ class CommentForm(Form):
     email = TextField(_("Email"), validators=[
                       required(message=_("Email required")),
                       email(message=_("A valid email address is required"))])
-    
+
     nickname = TextField(_("Nickname"), validators=[
                       required(message=_("Nickname required"))])
-    
+
     website = TextField(_("Website"), validators=[
                     optional(),
                     url(message=_("A valid url is required"))])
-    
+
     comment = TextAreaField(_("Comment"), validators=[
                       required(message=_("Comment required"))])
-    
+
+    recaptcha = RecaptchaField()
     submit = SubmitField(_("Add comment"))
     cancel = SubmitField(_("Cancel"))
-
 
 class LinkForm(Form):
 
     name = TextField(_("Site name"), validators=[
                       required(message=_("Name required"))])
-    
+
     link = TextField(_("link"), validators=[
                     url(message=_("A valid url is required"))])
-    
+
     email = TextField(_("Email"), validators=[
                     email(message=_("A valid email is required"))])
-    
+
     logo = TextField(_("Logo"), validators=[
                     optional(),
                     url(message=_("A valid url is required"))])
-    
+
     description = TextAreaField(_("Description"))
 
     submit = SubmitField(_("Save"))
 
+class UploadForm(Form):
+
+    file = FileField(_("File"), validators=[
+                      required(message=_("File required"))])
+
+    submit = SubmitField(_("Save"))
 
 class TemplateForm(Form):
 
     html = TextAreaField(_("HTML"), validators=[
                     required(message=_("HTML required"))])
-    
+
     submit = SubmitField(_("Save"))
     cancel = SubmitField(_("Cancel"))
 

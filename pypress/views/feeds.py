@@ -11,20 +11,20 @@ import os
 
 from werkzeug.contrib.atom import AtomFeed
 
-from flask import Module, request, url_for
+from flask import Blueprint, request, url_for
 
 from pypress.helpers import cached
 
 from pypress.models import User, Post, Tag
 
-feeds = Module(__name__)
+feeds = Blueprint('feeds', __name__)
 
 class PostFeed(AtomFeed):
 
     def add_post(self, post):
 
         self.add(post.title,
-                 unicode(post.content),
+                 unicode(post.summary),
                  content_type="html",
                  author=post.author.username,
                  url=post.permalink,
@@ -35,11 +35,11 @@ class PostFeed(AtomFeed):
 @feeds.route("/")
 @cached()
 def index():
-    feed = PostFeed("laoqiu blog - lastest",
+    feed = PostFeed("silverymoon - latest",
                     feed_url=request.url,
                     url=request.url_root)
 
-    posts = Post.query.order_by('created_date desc').limit(15)
+    posts = Post.query.filter(Post._page == False).order_by('created_date desc').limit(15)
 
     for post in posts:
         feed.add_post(post)
@@ -53,7 +53,7 @@ def tag(slug):
 
     tag = Tag.query.filter_by(slug=slug).first_or_404()
 
-    feed = PostFeed("laoqiu blog - %s"  % tag,
+    feed = PostFeed("silverymoon - %s"  % tag,
                     feed_url=request.url,
                     url=request.url_root)
 

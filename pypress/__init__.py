@@ -10,6 +10,7 @@
 import os
 import logging
 import datetime
+import re
 
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from werkzeug import parse_date
@@ -20,53 +21,65 @@ from flaskext.babel import Babel, gettext as _
 from flaskext.themes import setup_themes
 from flaskext.principal import Principal, RoleNeed, UserNeed, identity_loaded
 from flaskext.uploads import configure_uploads
+from flaskext.creole import Creole
 
 from pypress import views, helpers
 from pypress.models import User, Post, Tag, Link, Comment
-from pypress.extensions import db, mail, cache, photos
-from pypress.helpers import render_template
+from pypress.extensions import db, mail, cache, uploader
+from pypress.helpers import render_template, creole_make_img
 
 DEFAULT_APP_NAME = 'pypress'
 
-DEFAULT_MODULES = (
+DEFAULT_BLUEPRINTS = (
     (views.frontend, ""),
     (views.post, "/post"),
     (views.comment, "/comment"),
     (views.account, "/account"),
-    (views.link, "/link"),
     (views.feeds, "/feeds"),
+    (views.uploads, '/uploads'),
 )
 
-def create_app(config=None, modules=None):
+def create_app(config=None, blueprints=None):
 
-    if modules is None:
-        modules = DEFAULT_MODULES   
-    
+    if blueprints is None:
+        blueprints = DEFAULT_BLUEPRINTS
+
     app = Flask(DEFAULT_APP_NAME)
-    
+
     # config
     app.config.from_pyfile(config)
-    
+
     configure_extensions(app)
-    
+
     configure_identity(app)
     configure_logging(app)
     configure_errorhandlers(app)
     configure_before_handlers(app)
     configure_template_filters(app)
     configure_context_processors(app)
-    configure_uploads(app, (photos,))
+    configure_uploads(app, (uploader,))
 
     configure_i18n(app)
-    
+    configure_creole(app)
+
     # register module
-    configure_modules(app, modules) 
+    configure_blueprints(app, blueprints)
 
     return app
 
+def configure_creole(app):
+    creole = Creole(app, custom_markup=[(re.compile("%%(?P<src>[^%?|]+)(\?(?P<width>\d+)x(?P<height>\d+))?(\|(?P<alt>[^%]+))?%%"), helpers.creole_make_img)])
+
+    @creole.macro('pth')
+    def media_path(name, environ, body, is_block):
+        return "/static/uploads/"
+
+    @app.template_filter()
+    def creolify(text):
+        return unicode(creole.creole2html(text), 'utf-8')
 
 def configure_extensions(app):
-    # configure extensions          
+    # configure extensions
     db.init_app(app)
     mail.init_app(app)
     cache.init_app(app)
@@ -88,7 +101,7 @@ def configure_i18n(app):
 
     @babel.localeselector
     def get_locale():
-        accept_languages = app.config.get('ACCEPT_LANGUAGES',['en','zh'])
+        accept_languages = app.config.get('ACCEPT_LANGUAGES',['en','de'])
         return request.accept_languages.best_match(accept_languages)
 
 
@@ -100,7 +113,7 @@ def configure_context_processors(app):
         if tags is None:
             tags = Tag.query.cloud()
             cache.set("tags", tags)
-        return dict(tags=tags)    
+        return dict(tags=tags)
 
     @app.context_processor
     def links():
@@ -108,14 +121,14 @@ def configure_context_processors(app):
         if links is None:
             links = Link.query.filter(Link.passed==True).limit(10).all()
             cache.set("links", links)
-        return dict(links=links)    
+        return dict(links=links)
 
     @app.context_processor
     def archives():
         archives = cache.get("archives")
         if archives is None:
-            begin_post = Post.query.order_by('created_date').first()
-            
+            begin_post = Post.query.filter(Post._page == False).order_by('created_date').first()
+
             now = datetime.datetime.now()
 
             begin = begin_post.created_date if begin_post else now
@@ -126,14 +139,15 @@ def configure_context_processors(app):
 
             date = begin
             for i in range(total):
-                if date.month<12: 
+                if date.month<12:
                     date = datetime.datetime(date.year,date.month+1,1)
                 else:
                     date = datetime.datetime(date.year+1, 1, 1)
-                archives.append(date)
+                if Post.query.archive(date.year, date.month, None).count() > 0:
+                    archives.append(date)
             archives.reverse()
             cache.set("archives", archives)
-        
+
         return dict(archives=archives)
 
     @app.context_processor
@@ -143,7 +157,7 @@ def configure_context_processors(app):
             latest_comments = Comment.query.order_by(Comment.created_date.desc()) \
                                            .limit(5).all()
             cache.set("latest_comments", latest_comments)
-        return dict(latest_comments=latest_comments)    
+        return dict(latest_comments=latest_comments)
 
     @app.context_processor
     def config():
@@ -151,7 +165,7 @@ def configure_context_processors(app):
 
 
 def configure_template_filters(app):
-    
+
     @app.template_filter()
     def timesince(value):
         return helpers.timesince(value)
@@ -175,7 +189,7 @@ def configure_template_filters(app):
     @app.template_filter()
     def twitter_date(date):
         return parse_date(date)
-    
+
     @app.template_filter()
     def code_highlight(html):
         return helpers.code_highlight(html)
@@ -193,14 +207,14 @@ def configure_before_handlers(app):
 
 
 def configure_errorhandlers(app):
-    
+
     @app.errorhandler(401)
     def unauthorized(error):
         if request.is_xhr:
             return jsonfiy(error=_("Login required"))
         flash(_("Please login to see this page"), "error")
         return redirect(url_for("account.login", next=request.path))
-  
+
     @app.errorhandler(403)
     def forbidden(error):
         if request.is_xhr:
@@ -220,10 +234,10 @@ def configure_errorhandlers(app):
         return render_template("errors/500.html", error=error)
 
 
-def configure_modules(app, modules):
-    
-    for module, url_prefix in modules:
-        app.register_module(module, url_prefix=url_prefix)
+def configure_blueprints(app, blueprints):
+
+    for module, url_prefix in blueprints:
+        app.register_blueprint(module, url_prefix=url_prefix)
 
 
 def configure_logging(app):
@@ -231,7 +245,7 @@ def configure_logging(app):
     mail_handler = \
         SMTPHandler(app.config['MAIL_SERVER'],
                     app.config['DEFAULT_MAIL_SENDER'],
-                    app.config['ADMINS'], 
+                    app.config['ADMINS'],
                     'application error',
                     (
                         app.config['MAIL_USERNAME'],
@@ -245,7 +259,7 @@ def configure_logging(app):
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]')
 
-    debug_log = os.path.join(app.root_path, 
+    debug_log = os.path.join(app.root_path,
                              app.config['DEBUG_LOG'])
 
     debug_file_handler = \
@@ -257,7 +271,7 @@ def configure_logging(app):
     debug_file_handler.setFormatter(formatter)
     app.logger.addHandler(debug_file_handler)
 
-    error_log = os.path.join(app.root_path, 
+    error_log = os.path.join(app.root_path,
                              app.config['ERROR_LOG'])
 
     error_file_handler = \
