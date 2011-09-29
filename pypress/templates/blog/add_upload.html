@@ -1,0 +1,22 @@
+{% extends theme("layout.html") %}
+
+{% from "macros/_forms.html" import render_errors %}
+
+{%- block content %}
+<div class="content">
+    <h2 class="title">{{ _("Upload") }}</h2>
+    <div id="add_upload">
+        <form method="POST" action="." enctype="multipart/form-data">
+        <fieldset>
+            {{ form.hidden_tag() }}
+                <p>
+                    {{ form.file.label }}
+                    {{ form.file }} {{ render_errors(form.file) }}
+                </p>
+                    {{ form.submit(class="formbutton") }}
+                </p>
+            </fieldset>
+        </form>
+    </div>
+</div>
+{%- endblock %}
