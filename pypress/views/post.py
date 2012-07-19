@@ -13,8 +13,8 @@ import json
 from flask import Blueprint, Response, request, flash, jsonify, g, current_app, \
     abort, redirect, url_for, session
 
-from flaskext.mail import Message
-from flaskext.babel import gettext as _
+from flask.ext.mail import Message
+from flask.ext.babel import gettext as _
 
 from recaptcha.client import captcha
 

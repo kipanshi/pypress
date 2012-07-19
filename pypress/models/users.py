@@ -14,8 +14,8 @@ from werkzeug import cached_property
 
 from flask import abort, current_app
 
-from flaskext.sqlalchemy import BaseQuery
-from flaskext.principal import RoleNeed, UserNeed, Permission
+from flask.ext.sqlalchemy import BaseQuery
+from flask.ext.principal import RoleNeed, UserNeed, Permission
 
 from pypress.extensions import db, cache
 from pypress.permissions import admin
@@ -26,7 +26,7 @@ class UserQuery(BaseQuery):
 
     def from_identity(self, identity):
         """
-        Loads user from flaskext.principal.Identity instance and
+        Loads user from flask.ext.principal.Identity instance and
         assigns permissions from user.
 
         A "user" instance is monkeypatched to the identity instance.

@@ -9,6 +9,8 @@ Flask-Script
 Flask-Babel
 Flask-Themes
 Flask-Uploads
+Flask-Creole
 pygments
 markdown
 blinker
+recaptcha-client

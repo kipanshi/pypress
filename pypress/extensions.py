@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-from flaskext.mail import Mail
-from flaskext.sqlalchemy import SQLAlchemy
-from flaskext.cache import Cache
-from flaskext.uploads import UploadSet, AllExcept, EXECUTABLES, SCRIPTS
+from flask.ext.mail import Mail
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.cache import Cache
+from flask.ext.uploads import UploadSet, AllExcept, EXECUTABLES, SCRIPTS
 
 __all__ = ['mail', 'db', 'cache', 'photos']
 

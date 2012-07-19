@@ -9,7 +9,7 @@
 from flask import Blueprint, Response, request, flash, jsonify, g, current_app,\
     abort, redirect, url_for, session
 
-from flaskext.babel import gettext as _
+from flask.ext.babel import gettext as _
 
 from pypress.helpers import render_template, cached
 from pypress.permissions import auth, admin

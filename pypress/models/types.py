@@ -8,10 +8,11 @@
 
 from sqlalchemy import types
 
+
 class DenormalizedText(types.MutableType, types.TypeDecorator):
     """
-    Stores denormalized primary keys that can be 
-    accessed as a set. 
+    Stores denormalized primary keys that can be
+    accessed as a set.
 
     :param coerce: coercion function that ensures correct
                    type is returned
@@ -25,7 +26,7 @@ class DenormalizedText(types.MutableType, types.TypeDecorator):
 
         self.coerce = coerce
         self.separator = separator
-        
+
         super(DenormalizedText, self).__init__(**kwargs)
 
     def process_bind_param(self, value, dialect):

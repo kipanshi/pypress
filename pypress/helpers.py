@@ -22,10 +22,11 @@ from pygments.formatters import HtmlFormatter
 import genshi.builder as bldr
 
 from flask import current_app, g
-from flaskext.babel import gettext, ngettext, format_date, format_datetime
-from flaskext.themes import render_theme_template
+from flask.ext.babel import gettext, ngettext, format_date, format_datetime
+from flask.ext.themes import render_theme_template
 
 from pypress.extensions import cache
+
 
 class Storage(dict):
     """

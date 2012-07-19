@@ -20,8 +20,8 @@ import oauth2 as oauth
 from flask import Blueprint, Response, request, flash, jsonify, g, current_app,\
     abort, redirect, url_for, session
 
-from flaskext.babel import gettext as _
-from flaskext.principal import identity_changed, Identity, AnonymousIdentity
+from flask.ext.babel import gettext as _
+from flask.ext.principal import identity_changed, Identity, AnonymousIdentity
 
 from pypress.helpers import render_template, cached
 from pypress.permissions import auth, admin
